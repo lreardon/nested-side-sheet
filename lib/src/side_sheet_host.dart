@@ -47,9 +47,7 @@ class NestedSideSheet extends StatefulWidget {
   final DecorationBuilder? decorationBuilder;
 
   static NestedSideSheetState of(BuildContext context) {
-    final state = context
-        .dependOnInheritedWidgetOfExactType<InheritedSheetDataProvider>()
-        ?.state;
+    final state = context.dependOnInheritedWidgetOfExactType<InheritedSheetDataProvider>()?.state;
     if (state != null) {
       return state;
     } else {
@@ -61,11 +59,9 @@ class NestedSideSheet extends StatefulWidget {
   State<NestedSideSheet> createState() => NestedSideSheetState();
 }
 
-class NestedSideSheetState extends State<NestedSideSheet>
-    with TickerProviderStateMixin {
+class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderStateMixin {
   /// Prevent unnecessary gestures while animation is active.
-  bool get _blockGestures =>
-      _sheetEntries.any((e) => e.animationController.isAnimating);
+  bool get _blockGestures => _sheetEntries.any((e) => e.animationController.isAnimating);
 
   /// The color of the scrim that is applied when the side sheet is open.
   late AnimationController _scrimAnimationController;
@@ -79,11 +75,7 @@ class NestedSideSheetState extends State<NestedSideSheet>
 
   void _notifyStateChange() => _sheetStateNotifier.value += 1;
 
-  int indexOf(Widget sheet) =>
-      _sheetEntries
-          .firstWhereOrNull((e) => e.animatedSideSheet.child == sheet)
-          ?.index ??
-      -1;
+  int indexOf(Widget sheet) => _sheetEntries.firstWhereOrNull((e) => e.animatedSideSheet.child == sheet)?.index ?? -1;
 
   SideSheetEntry get current => _sheetEntries.last;
 
@@ -298,8 +290,7 @@ class NestedSideSheetState extends State<NestedSideSheet>
   Future<void> _maybeRemoveOverlay() async {
     if (_sheetEntries.isEmpty) {
       _scrimAnimationController.reverse();
-      await Future.delayed(_scrimAnimationController.reverseDuration ??
-          widget.reverseSettleDuration);
+      await Future.delayed(_scrimAnimationController.reverseDuration ?? widget.reverseSettleDuration);
 
       _notifyStateChange();
       _setSettleDuration(null);
@@ -307,12 +298,9 @@ class NestedSideSheetState extends State<NestedSideSheet>
     }
   }
 
-  Duration _setSettleDuration(Duration? duration) =>
-      _scrimAnimationController.duration = duration ?? widget.settleDuration;
+  Duration _setSettleDuration(Duration? duration) => _scrimAnimationController.duration = duration ?? widget.settleDuration;
 
-  Duration _setReverseSettleDuration(Duration? duration) =>
-      _scrimAnimationController.reverseDuration =
-          duration ?? widget.reverseSettleDuration;
+  Duration _setReverseSettleDuration(Duration? duration) => _scrimAnimationController.reverseDuration = duration ?? widget.reverseSettleDuration;
 
   /// Remove sheet entry from the navigation stack while disposing its animation controller.
   void _removeSheetSilently(SideSheetEntry entry) {
@@ -321,8 +309,35 @@ class NestedSideSheetState extends State<NestedSideSheet>
   }
 
   /// The callback, when a user taps on the outer space
-  void _onDismiss() =>
-      _sheetEntries.any((e) => !e.dismissible) ? null : close();
+  void _onDismiss({TapUpDetails? tapUp}) {
+    SideSheetEntry? destinationEntry;
+
+    if (tapUp != null) {
+      Offset globalTapPosition = tapUp.globalPosition;
+
+      destinationEntry = _sheetEntries.lastWhereOrNull((e) {
+        if (!e.dismissible) return true;
+
+        RenderBox? renderBox = e.animatedSideSheet.sheetKey.currentContext?.findRenderObject() as RenderBox;
+        // final Offset position = renderBox.localToGlobal(Offset.zero); // this is the global position
+        // final Size size = renderBox.size;
+
+        final Offset topLeft = renderBox.localToGlobal(Offset.zero); // top left corner
+        final Offset topRight = renderBox.localToGlobal(Offset(renderBox.size.width, 0)); // top right corner
+        final Offset bottomLeft = renderBox.localToGlobal(Offset(0, renderBox.size.height)); // bottom left corner
+        // final Offset bottomRight = renderBox.localToGlobal(Offset(renderBox.size.width, renderBox.size.height)); // bottom right corner
+        final double top = topLeft.dy;
+        final double bottom = bottomLeft.dy;
+        final double left = topLeft.dx;
+        final double right = topRight.dx;
+
+        bool isInSheet = left < globalTapPosition.dx && globalTapPosition.dx < right && top < globalTapPosition.dy && globalTapPosition.dy < bottom;
+        return isInSheet;
+      });
+    }
+
+    popUntil((entry) => entry == destinationEntry);
+  }
 
   @override
   Widget build(BuildContext context) => InheritedSheetDataProvider(
@@ -332,12 +347,10 @@ class NestedSideSheetState extends State<NestedSideSheet>
           AnimatedBuilder(
             animation: _scrimColorAnimation,
             builder: (ctx, child) => GestureDetector(
-              onTap: _onDismiss,
+              onTapUp: (TapUpDetails tapUp) => _onDismiss(tapUp: tapUp),
               child: Material(
                 color: _scrimColorAnimation.value,
-                child: _scrimAnimationController.value == 0
-                    ? const SizedBox.shrink()
-                    : const SizedBox.expand(),
+                child: _scrimAnimationController.value == 0 ? const SizedBox.shrink() : const SizedBox.expand(),
               ),
             ),
           ),

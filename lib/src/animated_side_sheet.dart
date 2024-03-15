@@ -14,20 +14,21 @@ class AnimatedSideSheet extends StatefulWidget {
   /// Custom animation transition builder
   final SideSheetTransitionBuilder transitionBuilder;
 
-  const AnimatedSideSheet({
-    Key? key,
+  final GlobalKey sheetKey = GlobalKey();
+
+  AnimatedSideSheet({
+    super.key,
     required this.child,
     required this.animationController,
     required this.initWithAnimation,
     required this.transitionBuilder,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedSideSheet> createState() => _AnimatedSideSheetState();
 }
 
-class _AnimatedSideSheetState extends State<AnimatedSideSheet>
-    with TickerProviderStateMixin {
+class _AnimatedSideSheetState extends State<AnimatedSideSheet> with TickerProviderStateMixin {
   late final AnimationController animationController;
   late Animation<double> animation;
 
@@ -50,9 +51,9 @@ class _AnimatedSideSheetState extends State<AnimatedSideSheet>
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
+        key: widget.sheetKey,
         animation: animation,
-        builder: (context, child) =>
-            widget.transitionBuilder(child!, animation),
+        builder: (context, child) => widget.transitionBuilder(child!, animation),
         child: widget.child,
       );
 }
