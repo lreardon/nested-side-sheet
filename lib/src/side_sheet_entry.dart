@@ -33,6 +33,9 @@ class SideSheetEntry<T> {
   /// A decoration widget builder which helps creating custom design.
   final DecorationBuilder? decorationBuilder;
 
+  /// Callback function which is called when the side sheet is removed from the navigation stack.
+  final VoidCallback? onRemoved;
+
   SideSheetEntry({
     required this.id,
     required this.index,
@@ -43,11 +46,11 @@ class SideSheetEntry<T> {
     required this.position,
     required this.dismissible,
     required this.decorationBuilder,
+    this.onRemoved,
   });
 
   factory SideSheetEntry.createNewElement({
-    required AnimatedWidget Function(Widget child, Animation<double> animation)
-        transitionBuilder,
+    required AnimatedWidget Function(Widget child, Animation<double> animation) transitionBuilder,
     required TickerProvider tickerProvider,
     required Duration animationDuration,
     required Duration reverseDuration,
@@ -58,6 +61,7 @@ class SideSheetEntry<T> {
     required bool dismissible,
     required int index,
     bool initWithAnimation = true,
+    VoidCallback? onRemoved,
   }) {
     final key = UniqueKey();
 
@@ -94,11 +98,7 @@ class SideSheetEntry<T> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SideSheetEntry &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          index == other.index &&
-          position == other.position;
+      other is SideSheetEntry && runtimeType == other.runtimeType && id == other.id && index == other.index && position == other.position;
 
   @override
   int get hashCode => id.hashCode ^ index.hashCode ^ position.hashCode;
