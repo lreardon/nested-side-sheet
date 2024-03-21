@@ -153,7 +153,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
 
     _notifyStateChange();
     await Future.delayed(const Duration(milliseconds: 17));
-    _pop<T>(result, firstCompleter);
+    await _pop<T>(result, firstCompleter);
   }
 
   /// Clears all the sheets from the navigation stack.
@@ -177,7 +177,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
 
     _notifyStateChange();
     await Future.delayed(const Duration(milliseconds: 17));
-    _pop<T>(result, firstCompleter);
+    await _pop<T>(result, firstCompleter);
   }
 
   /// Clears the sheets from the navigation stack until 'predicate' function returns true.
@@ -225,14 +225,14 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
     }
     _notifyStateChange();
     await Future.delayed(const Duration(milliseconds: 17));
-    _pop(result, completer);
+    await _pop(result, completer);
   }
 
   /// Pop the top-most sheet off the navigation stack.
   void pop<T extends Object?>([T? result]) => _pop<T>(result);
 
   /// Pop the top-most sheet off the navigation stack.
-  void _pop<T extends Object?>([T? result, Completer? completer]) async {
+  Future<void> _pop<T extends Object?>([T? result, Completer? completer]) async {
     if (_blockGestures) return;
 
     if (_sheetEntries.isEmpty) {
