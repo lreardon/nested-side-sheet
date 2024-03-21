@@ -104,7 +104,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
     bool dismissible = true,
     Duration? animationDuration,
     Duration? reverseAnimationDuration,
-    void Function()? onRemove,
+    void Function()? onRemoved,
   }) async {
     if (!mounted || _blockGestures) return null;
     final completer = Completer<T?>();
@@ -120,7 +120,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
       dismissible: dismissible,
       animationDuration: _setSettleDuration(animationDuration),
       reverseDuration: _setReverseSettleDuration(reverseAnimationDuration),
-      onRemoved: onRemove,
+      onRemoved: onRemoved,
     );
     _sheetEntries.add(newEntry);
     _notifyStateChange();
@@ -334,6 +334,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
   void _removeSheetSilently(SideSheetEntry entry) {
     entry.animationController.dispose();
     _sheetEntries.removeWhere((e) => e == entry);
+    entry.onRemoved?.call();
   }
 
   /// The callback, when a user taps on the outer space
