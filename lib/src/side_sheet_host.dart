@@ -134,7 +134,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
 
   /// Clears all the sheets from the navigation stack.
   /// Topmost widget is closed with animation and its result is returned.
-  void close<T extends Object?>([T? result]) async {
+  Future<void> close<T extends Object?>([T? result]) async {
     if (_blockGestures) return;
 
     if (_sheetEntries.isEmpty) {
@@ -158,7 +158,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
 
   /// Clears all the sheets from the navigation stack.
   /// Topmost widget is closed with animation and its result is returned.
-  void closeIfOpen<T extends Object?>([T? result]) async {
+  Future<void> closeIfOpen<T extends Object?>([T? result]) async {
     if (_blockGestures) return;
 
     if (_sheetEntries.isEmpty) {
@@ -182,7 +182,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
 
   /// Clears the sheets from the navigation stack until 'predicate' function returns true.
   /// The top-most widget is closed with animation and its result is returned.
-  void popUntil<T extends Object?>(
+  Future<void> popUntil<T extends Object?>(
     SheetPredicate predicate, [
     T? result,
   ]) async {
