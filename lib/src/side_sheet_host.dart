@@ -241,7 +241,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
 
     if (_sheetEntries.isNotEmpty) {
       final sideSheet = _sheetEntries.last;
-      sideSheet.onRemoved?.call();
+      if (sideSheet.onRemoved != null) sideSheet.onRemoved!();
       sideSheet.animationController.reverse();
 
       await Future.delayed(
@@ -334,7 +334,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
   void _removeSheetSilently(SideSheetEntry entry) {
     entry.animationController.dispose();
     _sheetEntries.removeWhere((e) => e == entry);
-    entry.onRemoved?.call();
+    if (entry.onRemoved != null) entry.onRemoved!();
   }
 
   /// The callback, when a user taps on the outer space
