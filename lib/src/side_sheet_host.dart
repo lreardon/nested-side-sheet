@@ -293,6 +293,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
       dismissible: oldEntry.dismissible,
       animationDuration: _setSettleDuration(animationDuration),
       reverseDuration: _setReverseSettleDuration(reverseAnimationDuration),
+      onRemoved: oldEntry.onRemoved,
     );
 
     if (mounted) {
