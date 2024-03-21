@@ -89,6 +89,7 @@ class SideSheetEntry<T> {
       position: position,
       dismissible: dismissible,
       decorationBuilder: decorationBuilder,
+      onRemoved: onRemoved,
     );
   }
 
