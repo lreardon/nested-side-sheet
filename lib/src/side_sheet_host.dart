@@ -154,6 +154,30 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
     _pop<T>(result, firstCompleter);
   }
 
+  /// Clears all the sheets from the navigation stack.
+  /// Topmost widget is closed with animation and its result is returned.
+  void closeIfOpen<T extends Object?>([T? result]) async {
+    if (_blockGestures) return;
+
+    if (_sheetEntries.isEmpty) {
+      return null;
+    }
+
+    // Find the first completer in the navigation stack
+    // and use it to return result all the way back.
+    final firstCompleter = _sheetEntries.first.completer;
+
+    for (final entry in _sheetEntries.reversed.toList()) {
+      if (_sheetEntries.last != entry) {
+        _removeSheetSilently(entry);
+      }
+    }
+
+    _notifyStateChange();
+    await Future.delayed(const Duration(milliseconds: 17));
+    _pop<T>(result, firstCompleter);
+  }
+
   /// Clears the sheets from the navigation stack until 'predicate' function returns true.
   /// The top-most widget is closed with animation and its result is returned.
   void popUntil<T extends Object?>(
