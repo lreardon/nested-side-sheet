@@ -61,25 +61,25 @@ class NestedSideSheet extends StatefulWidget {
 
 class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderStateMixin {
   /// Prevent unnecessary gestures while animation is active.
-  bool get _blockGestures => _sheetEntries.any((e) => e.animationController.isAnimating);
+  bool get _blockGestures => sheetEntries.any((e) => e.animationController.isAnimating);
 
   /// The color of the scrim that is applied when the side sheet is open.
   late AnimationController _scrimAnimationController;
   late Animation<Color?> _scrimColorAnimation;
 
   /// The list of the side sheet entries.
-  final _sheetEntries = <SideSheetEntry>[];
+  final sheetEntries = <SideSheetEntry>[];
 
   /// Notifies about any changes in the side sheets widget tree.
   final _sheetStateNotifier = ValueNotifier<int>(0);
 
   void _notifyStateChange() => _sheetStateNotifier.value += 1;
 
-  int indexOf(Widget sheet) => _sheetEntries.firstWhereOrNull((e) => e.animatedSideSheet.child == sheet)?.index ?? -1;
+  int indexOf(Widget sheet) => sheetEntries.firstWhereOrNull((e) => e.animatedSideSheet.child == sheet)?.index ?? -1;
 
-  SideSheetEntry get current => _sheetEntries.last;
+  SideSheetEntry get current => sheetEntries.last;
 
-  SideSheetEntry? get currentOrNull => _sheetEntries.lastOrNull;
+  SideSheetEntry? get currentOrNull => sheetEntries.lastOrNull;
 
   @override
   void initState() {
@@ -110,7 +110,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
     final completer = Completer<T?>();
 
     final newEntry = SideSheetEntry<T?>.createNewElement(
-      index: _sheetEntries.length,
+      index: sheetEntries.length,
       transitionBuilder: transitionBuilder,
       tickerProvider: this,
       sheet: sheet,
@@ -122,7 +122,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
       reverseDuration: _setReverseSettleDuration(reverseAnimationDuration),
       onRemoved: onRemoved,
     );
-    _sheetEntries.add(newEntry);
+    sheetEntries.add(newEntry);
     _notifyStateChange();
 
     if (_scrimAnimationController.value == 0) {
@@ -137,16 +137,16 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
   Future<void> close<T extends Object?>([T? result]) async {
     if (_blockGestures) return;
 
-    if (_sheetEntries.isEmpty) {
+    if (sheetEntries.isEmpty) {
       throw StateError('No active sheets to close.');
     }
 
     // Find the first completer in the navigation stack
     // and use it to return result all the way back.
-    final firstCompleter = _sheetEntries.first.completer;
+    final firstCompleter = sheetEntries.first.completer;
 
-    for (final entry in _sheetEntries.reversed.toList()) {
-      if (_sheetEntries.last != entry) {
+    for (final entry in sheetEntries.reversed.toList()) {
+      if (sheetEntries.last != entry) {
         _removeSheetSilently(entry);
       }
     }
@@ -161,16 +161,16 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
   Future<void> closeIfOpen<T extends Object?>([T? result]) async {
     if (_blockGestures) return;
 
-    if (_sheetEntries.isEmpty) {
+    if (sheetEntries.isEmpty) {
       return null;
     }
 
     // Find the first completer in the navigation stack
     // and use it to return result all the way back.
-    final firstCompleter = _sheetEntries.first.completer;
+    final firstCompleter = sheetEntries.first.completer;
 
-    for (final entry in _sheetEntries.reversed.toList()) {
-      if (_sheetEntries.last != entry) {
+    for (final entry in sheetEntries.reversed.toList()) {
+      if (sheetEntries.last != entry) {
         _removeSheetSilently(entry);
       }
     }
@@ -188,12 +188,12 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
   ]) async {
     if (_blockGestures) return;
 
-    if (_sheetEntries.isEmpty) {
+    if (sheetEntries.isEmpty) {
       throw StateError('No active sheets to pop.');
     }
 
-    final lastEntry = _sheetEntries.last;
-    final candidate = _sheetEntries.cast<SideSheetEntry?>().firstWhere(
+    final lastEntry = sheetEntries.last;
+    final candidate = sheetEntries.cast<SideSheetEntry?>().firstWhere(
           (entry) => entry == null ? false : predicate(entry),
           orElse: () => null,
         );
@@ -208,15 +208,15 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
     Completer? completer;
     try {
       // Find the candidate index.
-      final candidateIndex = _sheetEntries.indexOf(candidate);
+      final candidateIndex = sheetEntries.indexOf(candidate);
       // Find the completer, that was created by the candidate sheet.
-      final preCandidate = _sheetEntries[candidateIndex + 1];
+      final preCandidate = sheetEntries[candidateIndex + 1];
       completer = preCandidate.completer;
     } catch (_) {
       /*ignore*/
     }
 
-    for (final entry in _sheetEntries.reversed.toList()) {
+    for (final entry in sheetEntries.reversed.toList()) {
       if (entry != candidate && entry != lastEntry) {
         _removeSheetSilently(entry);
       } else if (predicate(entry)) {
@@ -235,12 +235,12 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
   Future<void> _pop<T extends Object?>([T? result, Completer? completer]) async {
     if (_blockGestures) return;
 
-    if (_sheetEntries.isEmpty) {
+    if (sheetEntries.isEmpty) {
       throw StateError('No active sheets to pop.');
     }
 
-    if (_sheetEntries.isNotEmpty) {
-      final sideSheet = _sheetEntries.last;
+    if (sheetEntries.isNotEmpty) {
+      final sideSheet = sheetEntries.last;
       if (sideSheet.onRemoved != null) sideSheet.onRemoved!();
       sideSheet.animationController.reverse();
 
@@ -275,11 +275,11 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
   }) async {
     if (!mounted || _blockGestures) return null;
 
-    if (_sheetEntries.isEmpty) {
+    if (sheetEntries.isEmpty) {
       throw StateError('No active sheets to replace.');
     }
 
-    final oldEntry = _sheetEntries.last;
+    final oldEntry = sheetEntries.last;
     final oldCompleter = oldEntry.completer as Completer<T?>;
 
     final newEntry = SideSheetEntry<T?>.createNewElement(
@@ -297,7 +297,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
     );
 
     if (mounted) {
-      _sheetEntries.add(newEntry);
+      sheetEntries.add(newEntry);
       _notifyStateChange();
     }
 
@@ -316,7 +316,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
 
   /// Remove scrim overlay if the navigation stack is empty.
   Future<void> _maybeRemoveOverlay() async {
-    if (_sheetEntries.isEmpty) {
+    if (sheetEntries.isEmpty) {
       _scrimAnimationController.reverse();
       await Future.delayed(_scrimAnimationController.reverseDuration ?? widget.reverseSettleDuration);
 
@@ -333,7 +333,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
   /// Remove sheet entry from the navigation stack while disposing its animation controller.
   void _removeSheetSilently(SideSheetEntry entry) {
     entry.animationController.dispose();
-    _sheetEntries.removeWhere((e) => e == entry);
+    sheetEntries.removeWhere((e) => e == entry);
     if (entry.onRemoved != null) entry.onRemoved!();
   }
 
@@ -344,7 +344,7 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
     if (tapUp != null) {
       Offset globalTapPosition = tapUp.globalPosition;
 
-      destinationEntry = _sheetEntries.lastWhereOrNull((e) {
+      destinationEntry = sheetEntries.lastWhereOrNull((e) {
         if (!e.dismissible) return true;
 
         RenderBox? renderBox = e.animatedSideSheet.sheetKey.currentContext?.findRenderObject() as RenderBox;
@@ -386,8 +386,8 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
           ValueListenableBuilder<int>(
             valueListenable: _sheetStateNotifier,
             builder: (context, value, child) => Stack(
-              children: _sheetEntries.map((entry) {
-                final ignore = entry != _sheetEntries.last;
+              children: sheetEntries.map((entry) {
+                final ignore = entry != sheetEntries.last;
                 final sheet = IgnorePointer(
                   ignoring: ignore,
                   child: entry.animatedSideSheet,
