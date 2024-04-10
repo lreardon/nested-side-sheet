@@ -95,6 +95,12 @@ class NestedSideSheetState extends State<NestedSideSheet> with TickerProviderSta
     ).animate(_scrimAnimationController);
   }
 
+  @override
+  void dispose() {
+    _scrimAnimationController.dispose();
+    super.dispose();
+  }
+
   /// Push the given sheet onto the navigation stack.
   Future<T?> push<T extends Object?>(
     Widget sheet, {
